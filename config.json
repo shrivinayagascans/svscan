@@ -1,0 +1,5 @@
+{
+    "APIUrl":  "https://jgdapiforemailv2api.juzgodigital.com/api/Notification/SendCareerMail",
+    "ToEmail":  "shrivinayagascans@gmail.com",
+    "LeadManagment":  "https://svsscansapi.juzgodigital.com/api/PatientLead/AddWebLead"
+}

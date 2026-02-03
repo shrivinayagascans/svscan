@@ -1,0 +1,22 @@
+{
+    "Logo_URL": "../../QR/Image.png",
+    "SendEmailForAllRatings": true,
+    "JGDEnvironment": true,
+    "HospitalId": 1,
+    "mainConfig": {
+      "GetClinicReviewRatingLevel": "https://svsscansapi.juzgodigital.com/api/Notification/GetClinicReviewRatingLevel?hospitalId=",
+      "SaveCustomerReviewRatings": "https://svsscansapi.juzgodigital.com/api/Notification/SaveCustomerReviewRatings",
+      "SendCareerMail": "https://jgdapiforemailv2api.juzgodigital.com/api/Notification/SendCareerMail",
+      "apiurl": "https://svsscansapi.juzgodigital.com/",
+      "ToEmail": "shrivinayagascans@gmail.com"
+      
+    },
+    "alternateConfig": {
+      "thershold_value": "4",
+      "google_mail": "https://jgdapiforemailv2api.juzgodigital.com/api/Notification/SendCareerMail",
+      "ToEmail": "shrivinayagascans@gmail.com",
+      "googlereviewURL":"https://g.page/r/CcplcZs6IquEEAE/review",
+	  "apiurl": "https://svsscansapi.juzgodigital.com/"
+      
+    }
+  }

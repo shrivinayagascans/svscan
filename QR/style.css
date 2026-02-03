@@ -1,0 +1,33 @@
+.error-message {
+    color: red;
+    display: none;
+    font-size: 12px;
+}
+
+.star-rating i {
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.logo {
+    max-height: 80px;
+    margin-bottom: 20px;
+}
+
+/* Toast styling */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+}
+
+#toast-container div {
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}   

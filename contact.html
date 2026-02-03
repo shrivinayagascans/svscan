@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+      <div class="contact-info">
+                                    <!-- Loader -->
+                                    <div id="loader" class="loader" style="display: none;">Loading...</div>
+                                    <div id="sucessmessage"></div>
+
+                                    <!-- Contact Form -->
+                                    <form method="post" id="contact_form" novalidate="novalidate">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-0">
+                                                <div class="form-group">
+                                                    <input type="text" name="name" id="name" class="form-control"
+                                                        placeholder="First Name">
+                                                    <span id="nameError" class="error text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6 mb-0">
+                                                <div class="form-group">
+                                                    <input type="text" name="lastname" id="lastname"
+                                                        class="form-control" placeholder="Last Name">
+                                                    <span id="lastnameError" class="error text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mb-0">
+                                                <div class="form-group">
+                                                    <input type="email" name="email" id="email" class="form-control"
+                                                        placeholder="Your Email">
+                                                    <span id="emailError" class="error text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mb-0">
+                                                <div class="form-group">
+                                                    <input type="number" name="phone" id="phone" class="form-control"
+                                                        placeholder="Phone Number">
+                                                    <span id="phoneError" class="error text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 mb-0">
+                                                <div class="form-group">
+                                                    <textarea name="message" id="contact-textarea" class="form-control"
+                                                        rows="6" placeholder="Message"></textarea>
+                                                    <span id="textareaError" class="error text-danger"></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-12 text-center">
+                                                <button type="submit"
+                                                    class="btn btn-primary box-shadow-btn">Submit</button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+
+                                  <script>
+        // Load configuration
+        let globalConfig = {};
+
+        async function loadConfig() {
+            try {
+                const response = await fetch("/config.json", {
+                    headers: {
+                        'Cache-Control': 'no-cache, no-store, must-revalidate',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to load config.json: ${response.status}`);
+                }
+
+                globalConfig = await response.json();
+                console.log("Config loaded successfully:", globalConfig);
+            } catch (error) {
+                console.error("Error loading config.json:", error);
+            }
+        }
+
+        // Load config when page loads
+        loadConfig();
+
+        // Country codes data with flags
+        const countryCodes = [
+            { code: "+93", country: "Afghanistan", iso: "AF" },
+            { code: "+355", country: "Albania", iso: "AL" },
+            { code: "+213", country: "Algeria", iso: "DZ" },
+            { code: "+376", country: "Andorra", iso: "AD" },
+            { code: "+244", country: "Angola", iso: "AO" },
+            { code: "+1", country: "Antigua and Barbuda", iso: "AG" },
+            { code: "+54", country: "Argentina", iso: "AR" },
+            { code: "+374", country: "Armenia", iso: "AM" },
+            { code: "+61", country: "Australia", iso: "AU" },
+            { code: "+43", country: "Austria", iso: "AT" },
+            { code: "+994", country: "Azerbaijan", iso: "AZ" },
+            { code: "+1", country: "Bahamas", iso: "BS" },
+            { code: "+973", country: "Bahrain", iso: "BH" },
+            { code: "+880", country: "Bangladesh", iso: "BD" },
+            { code: "+1", country: "Barbados", iso: "BB" },
+            { code: "+375", country: "Belarus", iso: "BY" },
+            { code: "+32", country: "Belgium", iso: "BE" },
+            { code: "+501", country: "Belize", iso: "BZ" },
+            { code: "+229", country: "Benin", iso: "BJ" },
+            { code: "+975", country: "Bhutan", iso: "BT" },
+            { code: "+591", country: "Bolivia", iso: "BO" },
+            { code: "+387", country: "Bosnia and Herzegovina", iso: "BA" },
+            { code: "+267", country: "Botswana", iso: "BW" },
+            { code: "+55", country: "Brazil", iso: "BR" },
+            { code: "+673", country: "Brunei", iso: "BN" },
+            { code: "+359", country: "Bulgaria", iso: "BG" },
+            { code: "+226", country: "Burkina Faso", iso: "BF" },
+            { code: "+257", country: "Burundi", iso: "BI" },
+            { code: "+855", country: "Cambodia", iso: "KH" },
+            { code: "+237", country: "Cameroon", iso: "CM" },
+            { code: "+1", country: "Canada", iso: "CA" },
+            { code: "+238", country: "Cape Verde", iso: "CV" },
+            { code: "+236", country: "Central African Republic", iso: "CF" },
+            { code: "+235", country: "Chad", iso: "TD" },
+            { code: "+56", country: "Chile", iso: "CL" },
+            { code: "+86", country: "China", iso: "CN" },
+            { code: "+57", country: "Colombia", iso: "CO" },
+            { code: "+269", country: "Comoros", iso: "KM" },
+            { code: "+242", country: "Congo", iso: "CG" },
+            { code: "+243", country: "Congo, Democratic Republic of the", iso: "CD" },
+            { code: "+506", country: "Costa Rica", iso: "CR" },
+            { code: "+225", country: "Côte d'Ivoire", iso: "CI" },
+            { code: "+385", country: "Croatia", iso: "HR" },
+            { code: "+53", country: "Cuba", iso: "CU" },
+            { code: "+357", country: "Cyprus", iso: "CY" },
+            { code: "+420", country: "Czech Republic", iso: "CZ" },
+            { code: "+45", country: "Denmark", iso: "DK" },
+            { code: "+253", country: "Djibouti", iso: "DJ" },
+            { code: "+1", country: "Dominica", iso: "DM" },
+            { code: "+1", country: "Dominican Republic", iso: "DO" },
+            { code: "+670", country: "East Timor", iso: "TL" },
+            { code: "+593", country: "Ecuador", iso: "EC" },
+            { code: "+20", country: "Egypt", iso: "EG" },
+            { code: "+503", country: "El Salvador", iso: "SV" },
+            { code: "+240", country: "Equatorial Guinea", iso: "GQ" },
+            { code: "+291", country: "Eritrea", iso: "ER" },
+            { code: "+372", country: "Estonia", iso: "EE" },
+            { code: "+251", country: "Ethiopia", iso: "ET" },
+            { code: "+679", country: "Fiji", iso: "FJ" },
+            { code: "+358", country: "Finland", iso: "FI" },
+            { code: "+33", country: "France", iso: "FR" },
+            { code: "+241", country: "Gabon", iso: "GA" },
+            { code: "+220", country: "Gambia", iso: "GM" },
+            { code: "+995", country: "Georgia", iso: "GE" },
+            { code: "+49", country: "Germany", iso: "DE" },
+            { code: "+233", country: "Ghana", iso: "GH" },
+            { code: "+30", country: "Greece", iso: "GR" },
+            { code: "+1", country: "Grenada", iso: "GD" },
+            { code: "+502", country: "Guatemala", iso: "GT" },
+            { code: "+224", country: "Guinea", iso: "GN" },
+            { code: "+245", country: "Guinea-Bissau", iso: "GW" },
+            { code: "+592", country: "Guyana", iso: "GY" },
+            { code: "+509", country: "Haiti", iso: "HT" },
+            { code: "+504", country: "Honduras", iso: "HN" },
+            { code: "+36", country: "Hungary", iso: "HU" },
+            { code: "+354", country: "Iceland", iso: "IS" },
+            { code: "+91", country: "India", iso: "IN" },
+            { code: "+62", country: "Indonesia", iso: "ID" },
+            { code: "+98", country: "Iran", iso: "IR" },
+            { code: "+964", country: "Iraq", iso: "IQ" },
+            { code: "+353", country: "Ireland", iso: "IE" },
+            { code: "+972", country: "Israel", iso: "IL" },
+            { code: "+39", country: "Italy", iso: "IT" },
+            { code: "+1", country: "Jamaica", iso: "JM" },
+            { code: "+81", country: "Japan", iso: "JP" },
+            { code: "+962", country: "Jordan", iso: "JO" },
+            { code: "+7", country: "Kazakhstan", iso: "KZ" },
+            { code: "+254", country: "Kenya", iso: "KE" },
+            { code: "+686", country: "Kiribati", iso: "KI" },
+            { code: "+383", country: "Kosovo", iso: "XK" },
+            { code: "+965", country: "Kuwait", iso: "KW" },
+            { code: "+996", country: "Kyrgyzstan", iso: "KG" },
+            { code: "+856", country: "Laos", iso: "LA" },
+            { code: "+371", country: "Latvia", iso: "LV" },
+            { code: "+961", country: "Lebanon", iso: "LB" },
+            { code: "+266", country: "Lesotho", iso: "LS" },
+            { code: "+231", country: "Liberia", iso: "LR" },
+            { code: "+218", country: "Libya", iso: "LY" },
+            { code: "+423", country: "Liechtenstein", iso: "LI" },
+            { code: "+370", country: "Lithuania", iso: "LT" },
+            { code: "+352", country: "Luxembourg", iso: "LU" },
+            { code: "+389", country: "North Macedonia", iso: "MK" },
+            { code: "+261", country: "Madagascar", iso: "MG" },
+            { code: "+265", country: "Malawi", iso: "MW" },
+            { code: "+60", country: "Malaysia", iso: "MY" },
+            { code: "+960", country: "Maldives", iso: "MV" },
+            { code: "+223", country: "Mali", iso: "ML" },
+            { code: "+356", country: "Malta", iso: "MT" },
+            { code: "+692", country: "Marshall Islands", iso: "MH" },
+            { code: "+222", country: "Mauritania", iso: "MR" },
+            { code: "+230", country: "Mauritius", iso: "MU" },
+            { code: "+52", country: "Mexico", iso: "MX" },
+            { code: "+691", country: "Micronesia", iso: "FM" },
+            { code: "+373", country: "Moldova", iso: "MD" },
+            { code: "+377", country: "Monaco", iso: "MC" },
+            { code: "+976", country: "Mongolia", iso: "MN" },
+            { code: "+382", country: "Montenegro", iso: "ME" },
+            { code: "+212", country: "Morocco", iso: "MA" },
+            { code: "+258", country: "Mozambique", iso: "MZ" },
+            { code: "+95", country: "Myanmar", iso: "MM" },
+            { code: "+264", country: "Namibia", iso: "NA" },
+            { code: "+674", country: "Nauru", iso: "NR" },
+            { code: "+977", country: "Nepal", iso: "NP" },
+            { code: "+31", country: "Netherlands", iso: "NL" },
+            { code: "+64", country: "New Zealand", iso: "NZ" },
+            { code: "+505", country: "Nicaragua", iso: "NI" },
+            { code: "+227", country: "Niger", iso: "NE" },
+            { code: "+234", country: "Nigeria", iso: "NG" },
+            { code: "+850", country: "North Korea", iso: "KP" },
+            { code: "+47", country: "Norway", iso: "NO" },
+            { code: "+968", country: "Oman", iso: "OM" },
+            { code: "+92", country: "Pakistan", iso: "PK" },
+            { code: "+680", country: "Palau", iso: "PW" },
+            { code: "+970", country: "Palestine", iso: "PS" },
+            { code: "+507", country: "Panama", iso: "PA" },
+            { code: "+675", country: "Papua New Guinea", iso: "PG" },
+            { code: "+595", country: "Paraguay", iso: "PY" },
+            { code: "+51", country: "Peru", iso: "PE" },
+            { code: "+63", country: "Philippines", iso: "PH" },
+            { code: "+48", country: "Poland", iso: "PL" },
+            { code: "+351", country: "Portugal", iso: "PT" },
+            { code: "+974", country: "Qatar", iso: "QA" },
+            { code: "+40", country: "Romania", iso: "RO" },
+            { code: "+7", country: "Russia", iso: "RU" },
+            { code: "+250", country: "Rwanda", iso: "RW" },
+            { code: "+1", country: "Saint Kitts and Nevis", iso: "KN" },
+            { code: "+1", country: "Saint Lucia", iso: "LC" },
+            { code: "+1", country: "Saint Vincent and the Grenadines", iso: "VC" },
+            { code: "+685", country: "Samoa", iso: "WS" },
+            { code: "+378", country: "San Marino", iso: "SM" },
+            { code: "+239", country: "São Tomé and Príncipe", iso: "ST" },
+            { code: "+966", country: "Saudi Arabia", iso: "SA" },
+            { code: "+221", country: "Senegal", iso: "SN" },
+            { code: "+381", country: "Serbia", iso: "RS" },
+            { code: "+248", country: "Seychelles", iso: "SC" },
+            { code: "+232", country: "Sierra Leone", iso: "SL" },
+            { code: "+65", country: "Singapore", iso: "SG" },
+            { code: "+421", country: "Slovakia", iso: "SK" },
+            { code: "+386", country: "Slovenia", iso: "SI" },
+            { code: "+677", country: "Solomon Islands", iso: "SB" },
+            { code: "+252", country: "Somalia", iso: "SO" },
+            { code: "+27", country: "South Africa", iso: "ZA" },
+            { code: "+82", country: "South Korea", iso: "KR" },
+            { code: "+211", country: "South Sudan", iso: "SS" },
+            { code: "+34", country: "Spain", iso: "ES" },
+            { code: "+94", country: "Sri Lanka", iso: "LK" },
+            { code: "+249", country: "Sudan", iso: "SD" },
+            { code: "+597", country: "Suriname", iso: "SR" },
+            { code: "+268", country: "Eswatini", iso: "SZ" },
+            { code: "+46", country: "Sweden", iso: "SE" },
+            { code: "+41", country: "Switzerland", iso: "CH" },
+            { code: "+963", country: "Syria", iso: "SY" },
+            { code: "+886", country: "Taiwan", iso: "TW" },
+            { code: "+992", country: "Tajikistan", iso: "TJ" },
+            { code: "+255", country: "Tanzania", iso: "TZ" },
+            { code: "+66", country: "Thailand", iso: "TH" },
+            { code: "+228", country: "Togo", iso: "TG" },
+            { code: "+676", country: "Tonga", iso: "TO" },
+            { code: "+1", country: "Trinidad and Tobago", iso: "TT" },
+            { code: "+216", country: "Tunisia", iso: "TN" },
+            { code: "+90", country: "Turkey", iso: "TR" },
+            { code: "+993", country: "Turkmenistan", iso: "TM" },
+            { code: "+688", country: "Tuvalu", iso: "TV" },
+            { code: "+256", country: "Uganda", iso: "UG" },
+            { code: "+380", country: "Ukraine", iso: "UA" },
+            { code: "+971", country: "United Arab Emirates", iso: "AE" },
+            { code: "+44", country: "United Kingdom", iso: "GB" },
+            { code: "+1", country: "United States", iso: "US" },
+            { code: "+598", country: "Uruguay", iso: "UY" },
+            { code: "+998", country: "Uzbekistan", iso: "UZ" },
+            { code: "+678", country: "Vanuatu", iso: "VU" },
+            { code: "+379", country: "Vatican City", iso: "VA" },
+            { code: "+58", country: "Venezuela", iso: "VE" },
+            { code: "+84", country: "Vietnam", iso: "VN" },
+            { code: "+967", country: "Yemen", iso: "YE" },
+            { code: "+260", country: "Zambia", iso: "ZM" },
+            { code: "+263", country: "Zimbabwe", iso: "ZW" },
+            // Additional territories and regions with their own calling codes
+            { code: "+852", country: "Hong Kong", iso: "HK" },
+            { code: "+853", country: "Macau", iso: "MO" },
+            { code: "+1", country: "Puerto Rico", iso: "PR" },
+            { code: "+672", country: "Antarctica", iso: "AQ" }
+        ];
+
+        // Enhanced validation functions
+        function validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Updated phone validation function with leading zero check
+        function validatePhone(number, countryCode) {
+            // Remove non-digit characters from the phone number
+            const cleanNumber = number.replace(/\D/g, '');
+
+            // Check if the number starts with 0
+            if (cleanNumber.charAt(0) === '0') {
+                return false;
+            }
+
+            // For India: exactly 10 digits
+            if (countryCode === "+91") {
+                return cleanNumber.length === 10;
+            }
+
+            // For other countries: at least 6 digits and at most 15 digits (international standard)
+            return cleanNumber.length >= 6 && cleanNumber.length <= 15;
+        }
+
+        function validateName(name) {
+            // Check if name contains any numbers
+            if (/\d/.test(name)) {
+                return {
+                    valid: false,
+                    error: "Only Alpha & Special Characters allowed"
+                };
+            }
+
+            // Check if name exceeds 50 characters
+            if (name.length > 50) {
+                return {
+                    valid: false,
+                    error: "Exceeds 50 characters"
+                };
+            }
+
+            // Check if name contains only allowed characters
+            const nameRegex = /^[a-zA-Z\s'.,-]+$/;
+            if (!nameRegex.test(name)) {
+                return {
+                    valid: false,
+                    error: "Invalid format"
+                };
+            }
+
+            return {
+                valid: true,
+                error: ""
+            };
+        }
+
+        function validateMessage(message) {
+            return message.length <= 500;
+        }
+
+        // Get user's country from IP (async function)
+        async function getUserCountry() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                const data = await response.json();
+                return data.country_code || 'IN'; // Default to India if detection fails
+            } catch (error) {
+                console.error('Error detecting country:', error);
+                return 'IN'; // Default to India if detection fails
+            }
+        }
+
+        // Initialize forms when document is ready
+        $(document).ready(function () {
+            // Find all form instances
+            const forms = document.querySelectorAll('form#contact_form');
+
+            // Add CSS to remove spin buttons for number inputs and style country code dropdown
+            const style = document.createElement('style');
+            style.textContent = `
+					input[type="number"]::-webkit-inner-spin-button,
+					input[type="number"]::-webkit-outer-spin-button {
+						-webkit-appearance: none;
+						margin: 0;
+					}
+					input[type="number"] {
+						-moz-appearance: textfield;
+					}
+					
+					/* Phone input container styl es */
+					.phone-input-container {
+						display: flex;
+						width: 100%;
+					}
+					
+					/* Country code dropdown styles */
+					.country-code-dropdown {
+						min-width: 100px;
+						border: 2px solid #ddd;
+						border-radius: 0.25rem 0 0 0.25rem;
+						background-color: #f8f9fa;
+						padding: 0.375rem 0.75rem;
+						border-right: none;
+						cursor: pointer;
+						height: 44px;
+					}
+					
+					/* Phone number input styles */
+					.phone-input-container input[type="tel"] {
+						border-radius: 0 0.25rem 0.25rem 0;
+						flex-grow: 1;
+					}
+					
+					/* Flag icon styles */
+					.flag-icon {
+						width: 24px;
+						height: 18px;
+						margin-right: 8px;
+						vertical-align: middle;
+						box-shadow: 0 0 1px rgba(0,0,0,0.2);
+					}
+					
+					/* Custom tooltip style that only shows on hover */
+					.custom-tooltip {
+						position: relative;
+						display: inline-block;
+					}
+					
+					.custom-tooltip .tooltip-text {
+						visibility: hidden;
+						background-color: #555;
+						color: #fff;
+						text-align: center;
+						border-radius: 6px;
+						padding: 5px;
+						position: absolute;
+						z-index: 1;
+						bottom: 125%;
+						left: 50%;
+						transform: translateX(-50%);
+						opacity: 0;
+						transition: opacity 0.3s;
+						white-space: nowrap;
+					}
+					
+					.custom-tooltip:hover .tooltip-text {
+						visibility: visible;
+						opacity: 1;
+					}
+					
+					/* Error message styling */
+					.error-message {
+						color: #dc3545;
+						font-size: 12px;
+						margin-top: 4px;
+						display: block;
+					}
+					
+					/* Country dropdown styles */
+					.country-dropdown {
+						position: absolute;
+						z-index: 1000;
+						display: none;
+						max-height: 300px;
+						overflow-y: auto;
+						background-color: white;
+						border: 1px solid #ced4da;
+						border-radius: 0.25rem;
+						width: 280px;
+						box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+					}
+					
+					.country-dropdown .country-option {
+						padding: 8px 12px;
+						cursor: pointer;
+						display: flex;
+						align-items: center;
+					}
+					
+					.country-dropdown .country-option:hover {
+						background-color: #f1f1f1;
+					}
+					
+					.country-code {
+						min-width: 60px;
+						display: inline-block;
+					}
+					
+					.country-name {
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}
+					
+					/* Active state for selected country */
+					.country-option.active {
+						background-color: #e9ecef;
+					}
+					
+					/* Search box styles */
+					.country-search {
+						padding: 8px 12px;
+						border-bottom: 1px solid #ced4da;
+						position: sticky;
+						top: 0;
+						background-color: white;
+						z-index: 1;
+					}
+					
+					.country-search input {
+						width: 100%;
+						padding: 6px 8px;
+						border: 1px solid #ced4da;
+						border-radius: 4px;
+					}
+					
+					/* Selected country display */
+					.selected-country {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						width: 100%;
+					}
+				`;
+            document.head.appendChild(style);
+
+            // Detect user's country and setup forms
+            getUserCountry().then(countryCode => {
+                // Apply validations and handlers to each form
+                forms.forEach((form, index) => {
+                    const formId = index === 0 ? '' : (index + 1);
+                    setupForm(form, formId, countryCode);
+                });
+            });
+        });
+
+        // Set up individual form with proper IDs
+        function setupForm(form, formIdSuffix, userCountry) {
+            // Get form elements
+            const nameField = form.querySelector('#name');
+            const lastnameField = form.querySelector('#lastname');
+            const emailField = form.querySelector('#email');
+            const phoneContainer = form.querySelector('#phone').parentElement;
+            const phoneField = form.querySelector('#phone');
+            const messageField = form.querySelector('#contact-textarea');
+            const nameError = form.querySelector('#nameError');
+            const lastnameError = form.querySelector('#lastnameError');
+            const emailError = form.querySelector('#emailError');
+            const phoneError = form.querySelector('#phoneError');
+            const textareaError = form.querySelector('#textareaError');
+            const loaderElement = formIdSuffix ?
+                document.getElementById(`loader${formIdSuffix}`) :
+                document.getElementById('loader');
+            const successMessageElement = formIdSuffix ?
+                document.getElementById(`successMessage${formIdSuffix}`) :
+                document.getElementById('sucessmessage');
+
+            // Replace the phone input with country code dropdown and phone input
+            setupPhoneWithCountryCode(phoneField, phoneContainer, userCountry, form);
+
+            // Set max lengths for other fields
+            $(nameField).attr('maxlength', '50');
+            $(lastnameField).attr('maxlength', '50');
+            $(emailField).attr('maxlength', '100');
+            $(messageField).attr('maxlength', '500');
+
+            // Add real-time validation for name fields
+            $(nameField).on('input', function () {
+                if (this.value.trim()) {
+                    const result = validateName(this.value.trim());
+                    if (!result.valid) {
+                        nameError.textContent = result.error;
+                        nameError.style.display = 'block';
+                    } else {
+                        nameError.textContent = "";
+                        nameError.style.display = 'none';
+                    }
+                } else {
+                    nameError.textContent = "";
+                    nameError.style.display = 'none';
+                }
+            });
+
+            // Last name validation - should not show error unless user has entered something invalid
+            $(lastnameField).on('input', function () {
+                if (this.value.trim()) {
+                    const result = validateName(this.value.trim());
+                    if (!result.valid) {
+                        lastnameError.textContent = result.error;
+                        lastnameError.style.display = 'block';
+                    } else {
+                        lastnameError.textContent = "";
+                        lastnameError.style.display = 'none';
+                    }
+                } else {
+                    lastnameError.textContent = "";
+                    lastnameError.style.display = 'none';
+                }
+            });
+
+            // Add character counter for message
+            $(messageField).on('input', function () {
+                const maxLength = 500;
+                const currentLength = $(this).val().length;
+                const remainingChars = maxLength - currentLength;
+
+                // Update or create character counter
+                let counterElement = $(this).next('.char-counter');
+                if (counterElement.length === 0) {
+                    $(this).after('<small class="char-counter text-muted"></small>');
+                    counterElement = $(this).next('.char-counter');
+                }
+
+                counterElement.text(`${currentLength}/${maxLength} characters`);
+
+                // Visual feedback when approaching limit
+                if (remainingChars <= 50) {
+                    counterElement.removeClass('text-muted').addClass('text-warning');
+                } else {
+                    counterElement.removeClass('text-warning').addClass('text-muted');
+                }
+
+                // Show error if exceeding limit
+                if (currentLength > maxLength) {
+                    textareaError.textContent = "Message exceeds 500 characters";
+                    textareaError.style.display = 'block';
+                } else {
+                    textareaError.textContent = "";
+                    textareaError.style.display = 'none';
+                }
+            });
+
+            // Add form submission handler
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.textContent;
+                submitButton.textContent = "Loading...";
+                submitButton.disabled = true;
+
+                if (loaderElement) {
+                    loaderElement.style.display = "block";
+                }
+
+                let isValid = true;
+
+                // First Name validation
+                if (!nameField.value.trim()) {
+                    nameError.textContent = "Required *";
+                    nameError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    const nameResult = validateName(nameField.value.trim());
+                    if (!nameResult.valid) {
+                        nameError.textContent = nameResult.error;
+                        nameError.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        nameError.textContent = "";
+                        nameError.style.display = 'none';
+                    }
+                }
+
+                // Last Name validation - OPTIONAL
+                // Only validate if user has entered something
+                if (lastnameField.value.trim()) {
+                    const lastnameResult = validateName(lastnameField.value.trim());
+                    if (!lastnameResult.valid) {
+                        lastnameError.textContent = lastnameResult.error;
+                        lastnameError.style.display = 'block';
+                        isValid = false;
+                    } else {
+                        lastnameError.textContent = "";
+                        lastnameError.style.display = 'none';
+                    }
+                } else {
+                    // Clear any error if field is empty since it's optional
+                    lastnameError.textContent = "";
+                    lastnameError.style.display = 'none';
+                }
+
+                // Email validation
+                if (!emailField.value.trim()) {
+                    emailError.textContent = "Required *";
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else if (!validateEmail(emailField.value.trim())) {
+                    emailError.textContent = "Invalid email format";
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else if (emailField.value.trim().length > 100) {
+                    emailError.textContent = "Email exceeds 100 characters";
+                    emailError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    emailError.textContent = "";
+                    emailError.style.display = 'none';
+                }
+
+                // Get the country code and phone number
+                const countryCodeElement = form.querySelector('#country-code');
+                const phoneInputElement = form.querySelector('#phone');
+                const countryCode = countryCodeElement ? countryCodeElement.value : "+91";
+
+                // Phone validation with check for leading zero
+                if (!phoneInputElement.value.trim()) {
+                    phoneError.textContent = "Required *";
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else if (phoneInputElement.value.trim().charAt(0) === '0') {
+
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else if (!validatePhone(phoneInputElement.value.trim(), countryCode)) {
+                    if (countryCode === "+91") {
+                        phoneError.textContent = "Please enter a valid 10-digit phone number";
+                    } else {
+                        phoneError.textContent = "Please enter a valid phone number";
+                    }
+                    phoneError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    phoneError.textContent = "";
+                    phoneError.style.display = 'none';
+                }
+
+                // Message validation
+                if (!messageField.value.trim()) {
+                    textareaError.textContent = "Required *";
+                    textareaError.style.display = 'block';
+                    isValid = false;
+                } else if (!validateMessage(messageField.value.trim())) {
+                    textareaError.textContent = "Message exceeds 500 characters";
+                    textareaError.style.display = 'block';
+                    isValid = false;
+                } else {
+                    textareaError.textContent = "";
+                    textareaError.style.display = 'none';
+                }
+
+                if (isValid) {
+                    var formObject = new FormData();
+
+                    // Create email body with conditional lastname
+                    var body = `Name: ${nameField.value}`;
+                    if (lastnameField.value.trim()) {
+                        body += `\nLastname: ${lastnameField.value}`;
+                    }
+                    body += `\nPhone Number: ${countryCode} ${phoneInputElement.value}\nEmail: ${emailField.value}\nMessage: ${messageField.value}`;
+
+                    formObject.append("Body", body);
+                    formObject.append("Subject", "Contact Form Submission");
+                    formObject.append("ToEmail", globalConfig.ToEmail);
+
+                    // Save form data for lead management
+                    const formData = {
+                        name: nameField.value,
+                        lastname: lastnameField.value,
+                        email: emailField.value,
+                        message: messageField.value,
+                        phone: `${countryCode} ${phoneInputElement.value}`
+                    };
+
+                    // Reset form fields
+                    nameField.value = "";
+                    lastnameField.value = "";
+                    emailField.value = "";
+                    phoneInputElement.value = "";
+                    messageField.value = "";
+
+                    // Clear error messages
+                    nameError.textContent = "";
+                    lastnameError.textContent = "";
+                    emailError.textContent = "";
+                    phoneError.textContent = "";
+                    textareaError.textContent = "";
+
+                    // Reset character counter if exists
+                    $('.char-counter', form).text("0/500 characters").removeClass('text-warning').addClass('text-muted');
+
+                    console.log("Form validated, sending data to email API and AddWebLead");
+                    sendData(formObject, formData, form, submitButton, loaderElement, successMessageElement);
+                } else {
+                    if (loaderElement) {
+                        loaderElement.style.display = "none";
+                    }
+                    resetSubmitButton(submitButton, originalButtonText);
+                }
+            });
+        }
+
+        // Create phone input with country code dropdown and flags
+        function setupPhoneWithCountryCode(phoneField, phoneContainer, userCountry, form) {
+            // Create a unique ID for this form's dropdown
+            const uniqueId = Math.random().toString(36).substring(2, 10);
+
+            // Get default country code
+            const defaultCountry = countryCodes.find(c => c.iso === userCountry) ||
+                countryCodes.find(c => c.iso === "IN"); // Default to India
+
+            // Create container for phone field
+            const phoneInputContainer = document.createElement('div');
+            phoneInputContainer.className = 'phone-input-container';
+
+            // Create country code dropdown button with flag
+            const countryCodeDropdown = document.createElement('div');
+            countryCodeDropdown.className = 'country-code-dropdown d-flex align-items-center';
+            countryCodeDropdown.innerHTML = `
+			<input type="hidden" id="country-code" value="${defaultCountry.code}">
+			<div class="selected-country">
+				<div class="d-flex align-items-center">
+					<img src="https://flagcdn.com/w40/${defaultCountry.iso.toLowerCase()}.png" 
+						class="flag-icon" alt="${defaultCountry.country} flag">
+					<span id="selected-country-code">${defaultCountry.code}</span>
+				</div>
+			</div>
+		`;
+
+            // Create dropdown content
+            const dropdownContent = document.createElement('div');
+            dropdownContent.className = 'country-dropdown';
+            dropdownContent.id = `country-dropdown-${uniqueId}`;
+
+            // Add search input to dropdown
+            const searchContainer = document.createElement('div');
+            searchContainer.className = 'country-search';
+            searchContainer.innerHTML = `
+			<input type="text" placeholder="Search country..." id="country-search-${uniqueId}">
+		`;
+            dropdownContent.appendChild(searchContainer);
+
+            // Add country options with flags
+            countryCodes.sort((a, b) => a.country.localeCompare(b.country)).forEach(country => {
+                const option = document.createElement('div');
+                option.className = 'country-option';
+                if (country.iso === defaultCountry.iso) {
+                    option.className += ' active';
+                }
+                option.setAttribute('data-code', country.code);
+                option.setAttribute('data-country', country.country);
+                option.setAttribute('data-iso', country.iso);
+                option.innerHTML = `
+				<img src="https://flagcdn.com/w40/${country.iso.toLowerCase()}.png" 
+					class="flag-icon" alt="${country.country} flag">
+				<span class="country-code">${country.code}</span>
+				<span class="country-name">${country.country}</span>
+			`;
+                dropdownContent.appendChild(option);
+            });
+
+            // Create new phone input
+            const newPhoneInput = document.createElement('input');
+            newPhoneInput.type = 'tel';
+            newPhoneInput.id = 'phone';
+            newPhoneInput.name = 'phone';
+            newPhoneInput.className = phoneField.className;
+            newPhoneInput.placeholder = phoneField.placeholder;
+            newPhoneInput.setAttribute('maxlength', '15');
+
+            // Only allow valid numbers in phone input with leading zero check
+            $(newPhoneInput).on('input', function () {
+                // Store cursor position
+                const cursorPos = this.selectionStart;
+                const oldValue = this.value;
+
+                // Remove non-digits
+                this.value = this.value.replace(/\D/g, '');
+
+                // Check for leading zero and remove it
+                if (this.value.charAt(0) === '0') {
+                    // Show error message
+                    const phoneErrorElement = form.querySelector('#phoneError');
+                    if (phoneErrorElement) {
+
+                        phoneErrorElement.style.display = 'block';
+                    }
+
+                    // Remove the leading zero
+                    this.value = this.value.substring(1);
+                } else {
+                    // Clear error if no leading zero
+                    const phoneErrorElement = form.querySelector('#phoneError');
+                    if (phoneErrorElement) {
+                        phoneErrorElement.textContent = "";
+                        phoneErrorElement.style.display = 'none';
+                    }
+                }
+
+                // Get selected country code
+                const selectedCode = form.querySelector('#country-code').value;
+
+                // For India: limit to 10 digits
+                if (selectedCode === "+91" && this.value.length > 10) {
+                    this.value = this.value.slice(0, 10);
+                }
+                // For other countries: limit to 15 digits (international standard)
+                else if (this.value.length > 15) {
+                    this.value = this.value.slice(0, 15);
+                }
+
+                // Adjust cursor position if value changed
+                if (this.value !== oldValue) {
+                    // If we removed a zero at the beginning, adjust cursor position
+                    if (oldValue.charAt(0) === '0' && cursorPos > 0) {
+                        this.setSelectionRange(cursorPos - 1, cursorPos - 1);
+                    } else {
+                        this.setSelectionRange(cursorPos, cursorPos);
+                    }
+                }
+            });
+
+            // Append elements to container
+            phoneInputContainer.appendChild(countryCodeDropdown);
+            phoneInputContainer.appendChild(newPhoneInput);
+
+            // Replace original phone field with the new container
+            phoneField.replaceWith(phoneInputContainer);
+
+            // Append dropdown to body for proper z-index handling
+            document.body.appendChild(dropdownContent);
+
+            // Toggle dropdown on click
+            countryCodeDropdown.addEventListener('click', function (e) {
+                e.stopPropagation();
+
+                // Close all other open dropdowns first
+                document.querySelectorAll('.country-dropdown').forEach(dropdown => {
+                    if (dropdown.id !== `country-dropdown-${uniqueId}`) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+
+                // Position dropdown below the button
+                const rect = countryCodeDropdown.getBoundingClientRect();
+                dropdownContent.style.top = (rect.bottom + window.scrollY) + 'px';
+                dropdownContent.style.left = (rect.left + window.scrollX) + 'px';
+
+                // Toggle display
+                if (dropdownContent.style.display === 'block') {
+                    dropdownContent.style.display = 'none';
+                } else {
+                    dropdownContent.style.display = 'block';
+                    // Focus search field
+                    document.getElementById(`country-search-${uniqueId}`).focus();
+                }
+            });
+
+            // Handle country selection
+            const countryOptions = dropdownContent.querySelectorAll('.country-option');
+            countryOptions.forEach(option => {
+                option.addEventListener('click', function () {
+                    const code = this.getAttribute('data-code');
+                    const iso = this.getAttribute('data-iso');
+                    const countryName = this.getAttribute('data-country');
+
+                    // Update hidden input value
+                    form.querySelector('#country-code').value = code;
+
+                    // Update dropdown button with flag and code
+                    const selectedCountryElement = countryCodeDropdown.querySelector('.selected-country div');
+                    selectedCountryElement.innerHTML = `
+					<img src="https://flagcdn.com/w40/${iso.toLowerCase()}.png" 
+						class="flag-icon" alt="${countryName} flag">
+					<span id="selected-country-code">${code}</span>
+				`;
+
+                    // Update active class
+                    countryOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Hide dropdown
+                    dropdownContent.style.display = 'none';
+
+                    // Clear phone field if country changes, since validation rules differ
+                    newPhoneInput.value = '';
+
+                    // Focus on phone input after selection
+                    newPhoneInput.focus();
+                });
+            });
+
+            // Handle search functionality
+            const searchInput = document.getElementById(`country-search-${uniqueId}`);
+            searchInput.addEventListener('input', function () {
+                const searchText = this.value.toLowerCase();
+                countryOptions.forEach(option => {
+                    const country = option.getAttribute('data-country').toLowerCase();
+                    const code = option.getAttribute('data-code');
+                    if (country.includes(searchText) || code.includes(searchText)) {
+                        option.style.display = 'flex';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                if (dropdownContent.style.display === 'block' &&
+                    !countryCodeDropdown.contains(e.target) &&
+                    !dropdownContent.contains(e.target)) {
+                    dropdownContent.style.display = 'none';
+                }
+            });
+
+            // Create error display element for phone field if not exists
+            if (!form.querySelector('#phoneError')) {
+                const errorElement = document.createElement('span');
+                errorElement.id = 'phoneError';
+                errorElement.className = 'error text-danger';
+                phoneInputContainer.insertAdjacentElement('afterend', errorElement);
+            }
+        }
+
+        // Enhanced function to add flag fallback
+        function handleImageError(img) {
+            img.onerror = null; // Prevent infinite loop
+            img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="13" viewBox="0 0 24 16"><rect width="20" height="13" fill="%23ccc"/><text x="12" y="12" font-size="10" text-anchor="middle" fill="%23666">?</text></svg>';
+            img.alt = 'Flag unavailable';
+        }
+
+        // Send form data to API
+        function sendData(formObject, formData, form, submitButton, loaderElement, successMessageElement) {
+            var apiEndpoint = globalConfig.APIUrl;
+            console.log("APIUrl:", apiEndpoint);
+
+            // Always send to lead management regardless of email success
+            sendToLeadManagement(formData);
+
+            // Send AJAX request for email
+            $.ajax({
+                url: apiEndpoint,
+                type: "POST",
+                data: formObject,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    console.log("Email sent successfully:", response);
+
+                    // Hide loader if it exists
+                    if (loaderElement) {
+                        loaderElement.style.display = "none";
+                    }
+
+                    // Reset button
+                    resetSubmitButton(submitButton, "Submit");
+
+                    // Show thank you message
+                    showThankYouMessage(form);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error("Email sending error:", textStatus, errorThrown);
+
+                    // Hide loader if it exists
+                    if (loaderElement) {
+                        loaderElement.style.display = "none";
+                    }
+
+                    // Reset button
+                    resetSubmitButton(submitButton, "Submit");
+
+                    // Show thank you message anyway, since lead management is separate
+                    showThankYouMessage(form);
+                }
+            });
+        }
+
+        function showThankYouMessage(form) {
+            // Find the form container
+            const formContainer = form.closest('.form-container') || form.parentElement;
+
+            // Create thank you message element
+            const thankYouMessage = document.createElement('div');
+            thankYouMessage.className = 'alert alert-success mt-3';
+            thankYouMessage.style.backgroundColor = '#d4edda';
+            thankYouMessage.style.color = '#155724';
+            thankYouMessage.style.padding = '15px';
+            thankYouMessage.style.borderRadius = '5px';
+            thankYouMessage.style.marginBottom = '15px';
+            thankYouMessage.innerHTML = '<p style="margin: 0; text-align: center;">Thanks for reaching out! We\'ll be in touch.</p>';
+
+            // Hide the form
+            form.style.display = 'none';
+
+            // Insert thank you message where the form was
+            formContainer.appendChild(thankYouMessage);
+
+            // Optionally scroll to the thank you message
+            thankYouMessage.scrollIntoView({ behavior: 'smooth' });
+
+            // You can set a timeout to redirect the user after some time if needed
+            // setTimeout(function() { window.location.href = '/thank-you'; }, 3000);
+        }
+
+
+        // Send data to lead management system
+        function sendToLeadManagement(formData) {
+            if (!globalConfig.LeadManagment) {
+                console.error("Lead Management URL not found in config");
+                return;
+            }
+
+            // Create a more complete lead payload - handle empty lastname
+            const leadPayload = {
+                "Name": formData.lastname.trim() ? `${formData.name} ${formData.lastname}` : formData.name,
+                "EmailID": formData.email,
+                "Notes": formData.message || "",
+                "PhoneNumber": formData.phone || "",
+                "Source": "Website Contact Form"
+            };
+
+            console.log("Sending AddWebLead request:", leadPayload);
+
+            $.ajax({
+                url: globalConfig.LeadManagment,
+                type: "POST",
+                method: "POST",
+                data: JSON.stringify(leadPayload),
+                contentType: "application/json",
+                processData: false,
+                timeout: 15000, // 15 second timeout
+                success: function (response) {
+                    console.log("AddWebLead data sent successfully:", response);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    // Log error details
+                    console.error("AddWebLead error details:");
+                    console.error("Status:", textStatus);
+                    console.error("Error:", errorThrown);
+                    console.error("Status code:", jqXHR.status);
+
+                    try {
+                        // Parse response text if available
+                        var responseText = jqXHR.responseText;
+                        console.error("Response text:", responseText);
+
+                        if (responseText && responseText.length > 0) {
+                            try {
+                                // Parse as JSON
+                                var jsonResponse = JSON.parse(responseText);
+                                console.error("Parsed JSON response:", jsonResponse);
+                            } catch (e) {
+                                console.error("Response is not valid JSON");
+                            }
+                        }
+                    } catch (ex) {
+                        console.error("Error processing response:", ex);
+                    }
+                }
+            });
+        }
+
+        // Reset submit button to original state
+        function resetSubmitButton(button, text) {
+            button.textContent = text || "Submit";
+            button.disabled = false;
+        }
+
+        // Show error alert
+        function showErrorAlert(messageElement) {
+            if (!messageElement) return;
+
+            var alertHtml = `  
+		<div class="alert-container">
+			<div class="alert alert-danger" role="alert">
+				Something went wrong! Please try again later.
+			</div>
+		</div>
+		`;
+
+            messageElement.innerHTML = alertHtml;
+            setTimeout(function () {
+                messageElement.innerHTML = "";
+            }, 6000);
+        }
+
+        // Add fallback image handling for all flag images
+        document.addEventListener('DOMContentLoaded', function () {
+            // Add event listener to handle all flag image errors
+            document.body.addEventListener('error', function (e) {
+                if (e.target.tagName.toLowerCase() === 'img' && e.target.classList.contains('flag-icon')) {
+                    handleImageError(e.target);
+                }
+            }, true);
+        });
+        $(document).ready(function () {
+            console.log("Country code dropdown initialized");
+        });
+    </script>
+</body>
+</html>
